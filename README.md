@@ -10,7 +10,7 @@ $ sudo easy_install frida
 Open one terminal with:
 
 ```sh
-$ gst-launch-1.0 -v videotestsrc is-live=true ! glimagesink
+$ gst-launch-1.0 videotestsrc is-live=true ! glimagesink
 ```
 
 Then in another do:
