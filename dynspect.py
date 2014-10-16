@@ -1,6 +1,5 @@
 import frida
 import sys
-from hexdump import hexdump
 
 process = frida.attach(sys.argv[1])
 with open("dynspect.js", "r") as f:
@@ -10,8 +9,6 @@ def on_message(message, data):
         print(message['payload'])
     else:
         print(message)
-    if data is not None:
-        hexdump(data)
 script.on('message', on_message)
 script.load()
 sys.stdin.read()
