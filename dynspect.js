@@ -1,4 +1,3 @@
-// FIXME: assuming 64-bit process and single pipeline
 var GST_OBJECT_OFFSET_PARENT = 40;
 var GST_ELEMENT_OFFSET_CLOCK = 152;
 var GST_ELEMENT_OFFSET_BASE_TIME = 160;
@@ -6,7 +5,11 @@ var GST_BUFFER_OFFSET_PTS = 72;
 var GST_BUFFER_OFFSET_DTS = GST_BUFFER_OFFSET_PTS + Process.pointerSize;
 
 var api = resolve([{
-        module: "libgstreamer-1.0.0.dylib",
+        module: {
+            linux: "libgstreamer-1.0.so.0.400.0",
+            darwin: "libgstreamer-1.0.0.dylib",
+            windows: "libgstreamer-1.0.dll"
+        },
         functions: {
             "gst_clock_get_time": ['pointer', ['pointer']],
             "gst_pad_push": ['int', ['pointer', 'pointer']]
@@ -71,7 +74,7 @@ function resolve(apis) {
     apis.forEach(function (api) {
         var pendingFunctions = api.functions;
         remaining += Object.keys(pendingFunctions).length;
-        Module.enumerateExports(api.module, {
+        Module.enumerateExports(api.module[Process.platform], {
             onMatch: function (exp) {
                 var name = exp.name;
                 if (exp.type === 'function') {
