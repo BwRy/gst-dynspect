@@ -23,6 +23,15 @@ Then in another do:
 $ python dynspect.py gst-launch-1.0
 ```
 
+Note that on Linux you might need to relax the kernel's ptrace policy:
+
+```sh
+$ sudo sysctl kernel.yama.ptrace_scope=0
+```
+
+Also, in case you hit the error `GStreamer not loaded`, you might have to
+adjust the module name in `dynspect.js`.
+
 ## TODO
 
 - Provide more than just "pts vs running_time"
