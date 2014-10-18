@@ -5,11 +5,7 @@ var GST_BUFFER_OFFSET_PTS = 72;
 var GST_BUFFER_OFFSET_DTS = GST_BUFFER_OFFSET_PTS + Process.pointerSize;
 
 var api = resolve([{
-        module: {
-            linux: "libgstreamer-1.0.so.0.400.0",
-            darwin: "libgstreamer-1.0.0.dylib",
-            windows: "libgstreamer-1.0.dll"
-        },
+        module: /gstreamer-1\.0/,
         functions: {
             "gst_clock_get_time": ['pointer', ['pointer']],
             "gst_pad_push": ['int', ['pointer', 'pointer']]
@@ -74,18 +70,27 @@ function resolve(apis) {
     apis.forEach(function (api) {
         var pendingFunctions = api.functions;
         remaining += Object.keys(pendingFunctions).length;
-        Module.enumerateExports(api.module[Process.platform], {
-            onMatch: function (exp) {
-                var name = exp.name;
-                if (exp.type === 'function') {
-                    var signature = pendingFunctions[name];
-                    if (signature) {
-                        result[name] = new NativeFunction(exp.address, signature[0], signature[1]);
-                        delete pendingFunctions[name];
-                        if (--remaining === 0) {
-                            return 'stop';
+        Process.enumerateModules({
+            onMatch: function (mod) {
+                if (api.module.test(mod.name)) {
+                    Module.enumerateExports(mod.name, {
+                        onMatch: function (exp) {
+                            var name = exp.name;
+                            if (exp.type === 'function') {
+                                var signature = pendingFunctions[name];
+                                if (signature) {
+                                    result[name] = new NativeFunction(exp.address, signature[0], signature[1]);
+                                    delete pendingFunctions[name];
+                                    if (--remaining === 0) {
+                                        return 'stop';
+                                    }
+                                }
+                            }
+                        },
+                        onComplete: function () {
                         }
-                    }
+                    });
+                    return 'stop';
                 }
             },
             onComplete: function () {

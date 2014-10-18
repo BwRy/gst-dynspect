@@ -37,4 +37,3 @@ adjust the module name in `dynspect.js`.
 - Provide more than just "pts vs running_time"
 - Handle applications with multiple pipelines
 - Adapt structure offsets based on architecture (currently assuming x86-64)
-- Detect GStreamer module name by using `Process.enumerateModules()`
